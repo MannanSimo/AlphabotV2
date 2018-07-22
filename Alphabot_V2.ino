@@ -12,7 +12,7 @@
 
 const String deviceId = "KITT";
 
-// defines for ultra sonic range sensor
+// defines for ultrasonic range sensor
 #define ECHO_PIN 2
 #define TRIGGER_PIN 3
 #define MAX_DISTANCE 200
@@ -48,7 +48,7 @@ const String deviceId = "KITT";
 // define for on-board LED pin
 #define LED_ONBOARD_PIN 13
 
-// defintions for JSON objects
+// definitions for JSON objects
 #define JSON_OUTPUT_BUFFER_SIZE 180
 #define JSON_INPUT_BUFFER_SIZE 50
 
@@ -58,16 +58,16 @@ StaticJsonDocument<JSON_OUTPUT_BUFFER_SIZE> outputJsonDoc;
 // Buffer for input JSON object
 StaticJsonDocument<JSON_INPUT_BUFFER_SIZE> inputJsonDoc;
 
-// Create an object to work with ultra sonic sensor
+// Create an object to work with ultrasonic sensor
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
-// Create an object to work with onboard LEDs
+// Create an object to work with on-board LEDs
 Adafruit_NeoPixel RGB = Adafruit_NeoPixel(4, RGB_PIN, NEO_GRB + NEO_KHZ800);
 
 // define new type for system state representation
 typedef struct
 {
-  //max possible RPM of mototrs
+  //max possible RPM of motors
   int maxRPM;
   // curent RPM of motors
   int currentRPMLeftMotor;
@@ -107,7 +107,7 @@ typedef struct
   JsonObject outputJson;
   // JSON object for input stream
   JsonObject inputJson;
-  // idicate if new command was entered and not executed
+  // indicate if new command was entered and not executed
   bool isNewCommand;
   // representation of user command
   byte userCommandCode;
@@ -418,14 +418,14 @@ void setup()
 {
   Serial.begin(115200);
   /*
-    Start RGB lib and initialyze all pixels to 'off'
+    Start RGB library and initialize all pixels to 'off'
   */
   RGB.begin();
   RGB.show();
 
   Wire.begin();
 
-  // initialyze pins for motors
+  // initialize pins for motors
   pinMode(PWMA, OUTPUT);
   pinMode(AIN2, OUTPUT);
   pinMode(AIN1, OUTPUT);
@@ -433,7 +433,7 @@ void setup()
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
 
-  // initialyze pin for on-board LED
+  // initialize pin for on-board LED
   pinMode(LED_ONBOARD_PIN, OUTPUT);
 }
 
@@ -511,7 +511,7 @@ void loop()
   // get value from the utrasonic range sensor
   updateDistanceMeasurementResult();
 
-  // get info from onfrared obsticle avoiding sensors
+  // get info from onfrared obstacle avoiding sensors
   updateObstacleAvoidingInfo();
 
   // get the command from joystick
@@ -526,16 +526,16 @@ void loop()
   // calculate current
   updateWheelsSpeed();
 
-  // interpretate a command from user
+  // interpreted a command from user
   executeUserCommand();
 
   // avoid potentially dangerous conditions during movement
   obsticleAvoidanceAlgorithm();
 
-  // rememeber time of an iteration's end
+  // remember time of an iteration's end
   my_robot_state.endIterationTime = millis();
 
-  // serialyze the current system state to output JSON object
+  // serialize the current system state to output JSON object
   updateOutputJson();
 
   // calculate delta time of last iteration

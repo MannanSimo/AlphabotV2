@@ -20,11 +20,6 @@ const String deviceId = "KITT";
 // define for LEDs
 #define RGB_PIN 7
 
-// defines for motors frequency
-#define LOW_FREQ 100
-#define MEDIUM_FREQ 200
-#define HIGH_FREQ 255
-
 // Maximal revolutions per minute of motor
 #define MAX_RPM 600
 
@@ -169,8 +164,16 @@ void updateCurrentRPM()
 
 void updateWheelsSpeed()
 {
-  my_robot_state.leftWheelSpeed = calculateSpeedWheelInCm(my_robot_state.currentRPMLeftMotor);
-  my_robot_state.rightWheelSpeed = calculateSpeedWheelInCm(my_robot_state.currentRPMLeftMotor);
+  float leftWhlSpd=0, rightWhlSpd=0;
+  
+  if (my_robot_state.isMoves)
+  {
+    leftWhlSpd = calculateSpeedWheelInCm(my_robot_state.currentRPMLeftMotor);
+    rightWhlSpd = calculateSpeedWheelInCm(my_robot_state.currentRPMLeftMotor);
+  }
+  
+  my_robot_state.leftWheelSpeed = leftWhlSpd;
+  my_robot_state.rightWheelSpeed = rightWhlSpd;
 }
 
 float calculateSpeedWheelInCm(int rpm)
@@ -414,29 +417,6 @@ void updateJoystickInputCommand()
   my_robot_state.joystickInputCommand = PCF8574Read(Addr) | 0xE0;
 }
 
-void setup()
-{
-  Serial.begin(115200);
-  /*
-    Start RGB library and initialize all pixels to 'off'
-  */
-  RGB.begin();
-  RGB.show();
-
-  Wire.begin();
-
-  // initialize pins for motors
-  pinMode(PWMA, OUTPUT);
-  pinMode(AIN2, OUTPUT);
-  pinMode(AIN1, OUTPUT);
-  pinMode(PWMB, OUTPUT);
-  pinMode(AIN1, OUTPUT);
-  pinMode(AIN2, OUTPUT);
-
-  // initialize pin for on-board LED
-  pinMode(LED_ONBOARD_PIN, OUTPUT);
-}
-
 void getUserCommand()
 {
   if (Serial.available())
@@ -496,6 +476,34 @@ void obsticleAvoidanceAlgorithm()
   {
     stopMovement();
   }
+}
+
+void initMotor()
+{
+  pinMode(PWMA, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+  pinMode(AIN1, OUTPUT);
+  pinMode(PWMB, OUTPUT);
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+}
+
+void setup()
+{
+  Serial.begin(115200);
+  /*
+    Start RGB library and initialize all pixels to 'off'
+  */
+  RGB.begin();
+  RGB.show();
+
+  Wire.begin();
+
+  // initialize pins for motors
+  initMotor();
+
+  // initialize pin for on-board LED
+  pinMode(LED_ONBOARD_PIN, OUTPUT);
 }
 
 void loop()

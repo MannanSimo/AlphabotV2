@@ -2,13 +2,13 @@
 * Created by Mannan Simo. 22-07-2017
 * mannan.simo.91@gmail.com
 */
+
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <NewPing.h>
 #include <Adafruit_NeoPixel.h>
-#include <math.h>
 
-#define DEBUG_MODE false
+#define DEBUG_MODE true
 
 const String deviceId = "KITT";
 
@@ -306,7 +306,7 @@ byte PCF8574Read(byte addr)
 unsigned int doDistanceMeasurementInCm()
 {
   // read the value from ultra sonic sensor
-  unsigned int ultraSonicDistance = sonar.ping_cm();
+  unsigned int ultraSonicDistance = sonar.convert_cm(sonar.ping_median(3));
 
   /*
   Basically when stuck at zero,
@@ -411,7 +411,7 @@ void updateObstacleAvoidingInfo()
 void updateJoystickInputCommand()
 {
   /*
-  set Pin High and read Pin value
+  * set Pin High and read Pin value
   */
   PCF8574Write(Addr, 0x1F | PCF8574Read(Addr));
   my_robot_state.joystickInputCommand = PCF8574Read(Addr) | 0xE0;
@@ -492,7 +492,7 @@ void setup()
 {
   Serial.begin(115200);
   /*
-    Start RGB library and initialize all pixels to 'off'
+  * Start RGB library and initialize all pixels to 'off'
   */
   RGB.begin();
   RGB.show();
@@ -507,7 +507,7 @@ void setup()
 }
 
 void loop()
-{
+{ 
   my_robot_state.interationCounter++;
 
   // remember time of an iteration's start

@@ -23,7 +23,7 @@ const String deviceId = "KITT";
 // Maximal revolutions per minute of motor
 #define MAX_RPM 600
 
-#define WHEEL_DIAMATER 0.42
+#define WHEEL_DIAMETER 0.42
 
 //defines for motors
 #define PWMA 6  //Left Motor Speed pin (ENA)
@@ -44,7 +44,7 @@ const String deviceId = "KITT";
 #define LED_ONBOARD_PIN 13
 
 // definitions for JSON objects
-#define JSON_OUTPUT_BUFFER_SIZE 180
+#define JSON_OUTPUT_BUFFER_SIZE 200
 #define JSON_INPUT_BUFFER_SIZE 50
 
 // Buffer for output JSON object
@@ -73,9 +73,9 @@ typedef struct
   // info from ultra sonic sensor
   unsigned int ultraSonicDistance;
   // info from infrared left sensor
-  bool isObsticalFromRightSide;
+  bool isObstacleFromRightSide;
   // info from infrared left sensor
-  bool isObsticalFromLeftSide;
+  bool isObstacleFromLeftSide;
   // indication of current bluetooth connect
   bool isBluetoothConnected;
   // value of the PWM frequency for left motor
@@ -97,7 +97,7 @@ typedef struct
   // end time of last iteration in milliseconds
   unsigned long endIterationTime;
   // duration of last iteration in milliseconds
-  int lastInetrationTimeinMs;
+  int lastIterationTimeinMs;
   // JSON object for system's output
   JsonObject outputJson;
   // JSON object for input stream
@@ -114,8 +114,8 @@ system_state my_robot_state = {
     .currentRPMRightMotor = 0,
     .interationCounter = 0,
     .ultraSonicDistance = 0,
-    .isObsticalFromRightSide = false,
-    .isObsticalFromLeftSide = false,
+    .isObstacleFromRightSide = false,
+    .isObstacleFromLeftSide = false,
     .isBluetoothConnected = false,
     .leftMotorFrequency = 50,
     .rightMotorFrequency = 50,
@@ -126,7 +126,7 @@ system_state my_robot_state = {
     .rightWheelSpeed = 0,
     .startIterationTime = 0,
     .endIterationTime = 0,
-    .lastInetrationTimeinMs = 0,
+    .lastIterationTimeinMs = 0,
     .outputJson = outputJsonDoc.to<JsonObject>(),
     .inputJson = inputJsonDoc.to<JsonObject>(),
     .isNewCommand = false,
@@ -141,8 +141,8 @@ void updateOutputJson()
   my_robot_state.outputJson["currentRPMRightMotor"] = my_robot_state.currentRPMRightMotor;
   my_robot_state.outputJson["interationCounter"] = my_robot_state.interationCounter;
   my_robot_state.outputJson["ultraSonicDistance"] = my_robot_state.ultraSonicDistance;
-  my_robot_state.outputJson["isObsticalFromRightSide"] = my_robot_state.isObsticalFromRightSide;
-  my_robot_state.outputJson["isObsticalFromLeftSide"] = my_robot_state.isObsticalFromLeftSide;
+  my_robot_state.outputJson["isObstacleFromRightSide"] = my_robot_state.isObstacleFromRightSide;
+  my_robot_state.outputJson["isObstacleFromLeftSide"] = my_robot_state.isObstacleFromLeftSide;
   my_robot_state.outputJson["isBluetoothConnected"] = my_robot_state.isBluetoothConnected;
   my_robot_state.outputJson["leftMotorFrequency"] = my_robot_state.leftMotorFrequency;
   my_robot_state.outputJson["rightMotorFrequency"] = my_robot_state.rightMotorFrequency;
@@ -153,7 +153,7 @@ void updateOutputJson()
   my_robot_state.outputJson["rightWheelSpeed"] = my_robot_state.rightWheelSpeed;
   my_robot_state.outputJson["startIterationTime"] = my_robot_state.startIterationTime;
   my_robot_state.outputJson["endIterationTime"] = my_robot_state.endIterationTime;
-  my_robot_state.outputJson["lastInetrationTimeinMs"] = my_robot_state.lastInetrationTimeinMs;
+  my_robot_state.outputJson["lastIterationTimeinMs"] = my_robot_state.lastIterationTimeinMs;
 }
 
 void updateCurrentRPM()
@@ -178,7 +178,7 @@ void updateWheelsSpeed()
 
 float calculateSpeedWheelInCm(int rpm)
 {
-  return 3.14 * rpm * WHEEL_DIAMATER;
+  return 3.14 * rpm * WHEEL_DIAMETER;
 }
 
 int calculateCurrentRPMofMotor(int motorFreq, int max_rpm)
@@ -306,7 +306,7 @@ byte PCF8574Read(byte addr)
 unsigned int doDistanceMeasurementInCm()
 {
   // read the value from ultra sonic sensor
-  unsigned int ultraSonicDistance = sonar.convert_cm(sonar.ping_median(3));
+  unsigned int ultraSonicDistance = sonar.convert_cm(sonar.ping_median(4));
 
   /*
   Basically when stuck at zero,
@@ -346,13 +346,13 @@ void updateLedIndication()
     RGB.setPixelColor(2, RGB.Color(255, 0, 0));
   }
 
-  if (my_robot_state.isObsticalFromRightSide == true)
+  if (my_robot_state.isObstacleFromRightSide == true)
   {
     // set 1 LED to orange
     RGB.setPixelColor(0, RGB.Color(255, 40, 0));
   }
 
-  if (my_robot_state.isObsticalFromLeftSide == true)
+  if (my_robot_state.isObstacleFromLeftSide == true)
   {
     // set 4 LED to orange
     RGB.setPixelColor(3, RGB.Color(255, 40, 0)); 
@@ -366,9 +366,9 @@ void updateSerialOutput()
   serializeJsonPretty(my_robot_state.outputJson, Serial);
 }
 
-void updateLastInetrationTimeinMs()
+void updateLastIterationTimeinMs()
 {
-  my_robot_state.lastInetrationTimeinMs = my_robot_state.endIterationTime - my_robot_state.startIterationTime;
+  my_robot_state.lastIterationTimeinMs = my_robot_state.endIterationTime - my_robot_state.startIterationTime;
 }
 
 void updateObstacleAvoidingInfo()
@@ -383,28 +383,28 @@ void updateObstacleAvoidingInfo()
   {
     if (value == 191)
     {
-      // an obsticle from right side
-      my_robot_state.isObsticalFromLeftSide = false;
-      my_robot_state.isObsticalFromRightSide = true;
+      // an obstacle from right side
+      my_robot_state.isObstacleFromLeftSide = false;
+      my_robot_state.isObstacleFromRightSide = true;
     }
     else if (value == 127)
     {
-      // an obsticle from left side
-      my_robot_state.isObsticalFromLeftSide = true;
-      my_robot_state.isObsticalFromRightSide = false;
+      // an obstacle from left side
+      my_robot_state.isObstacleFromLeftSide = true;
+      my_robot_state.isObstacleFromRightSide = false;
     }
     else if (value == 63)
     {
-      // an obsticle from left and right side
-      my_robot_state.isObsticalFromLeftSide = true;
-      my_robot_state.isObsticalFromRightSide = true;
+      // an obstacle from left and right side
+      my_robot_state.isObstacleFromLeftSide = true;
+      my_robot_state.isObstacleFromRightSide = true;
     }
   }
   else
   {
     // no obsticles are observed
-    my_robot_state.isObsticalFromLeftSide = false;
-    my_robot_state.isObsticalFromRightSide = false;
+    my_robot_state.isObstacleFromLeftSide = false;
+    my_robot_state.isObstacleFromRightSide = false;
   }
 }
 
@@ -470,7 +470,7 @@ void executeUserCommand()
   }
 }
 
-void obsticleAvoidanceAlgorithm()
+void obstacleAvoidanceAlgorithm()
 {
   if (2 < my_robot_state.ultraSonicDistance && my_robot_state.ultraSonicDistance < 5)
   {
@@ -516,10 +516,10 @@ void loop()
   // try to get command from user
   getUserCommand();
 
-  // get value from the utrasonic range sensor
+  // get value from the ultrasonic range sensor
   updateDistanceMeasurementResult();
 
-  // get info from onfrared obstacle avoiding sensors
+  // get info from infrared obstacle avoiding sensors
   updateObstacleAvoidingInfo();
 
   // get the command from joystick
@@ -538,16 +538,16 @@ void loop()
   executeUserCommand();
 
   // avoid potentially dangerous conditions during movement
-  obsticleAvoidanceAlgorithm();
+  obstacleAvoidanceAlgorithm();
 
   // remember time of an iteration's end
   my_robot_state.endIterationTime = millis();
 
+  // calculate delta time of last iteration
+  updateLastIterationTimeinMs();
+
   // serialize the current system state to output JSON object
   updateOutputJson();
-
-  // calculate delta time of last iteration
-  updateLastInetrationTimeinMs();
 
 #if DEBUG_MODE
   // print debug data to serial interface

@@ -44,7 +44,7 @@ const String deviceId = "KITT";
 #define LED_ONBOARD_PIN 13
 
 // definitions for JSON objects
-#define JSON_OUTPUT_BUFFER_SIZE 200
+#define JSON_OUTPUT_BUFFER_SIZE 210
 #define JSON_INPUT_BUFFER_SIZE 50
 
 // Buffer for output JSON object
@@ -106,6 +106,8 @@ typedef struct
   bool isNewCommand;
   // representation of user command
   byte userCommandCode;
+  // state of the onboard LED
+  byte onboardLedState;
 } system_state;
 
 system_state my_robot_state = {
@@ -130,7 +132,8 @@ system_state my_robot_state = {
     .outputJson = outputJsonDoc.to<JsonObject>(),
     .inputJson = inputJsonDoc.to<JsonObject>(),
     .isNewCommand = false,
-    .userCommandCode = 0};
+    .userCommandCode = 0,
+    .onboardLedState = LOW};
 
 void updateOutputJson()
 {
@@ -154,6 +157,25 @@ void updateOutputJson()
   my_robot_state.outputJson["startIterationTime"] = my_robot_state.startIterationTime;
   my_robot_state.outputJson["endIterationTime"] = my_robot_state.endIterationTime;
   my_robot_state.outputJson["lastIterationTimeinMs"] = my_robot_state.lastIterationTimeinMs;
+  my_robot_state.outputJson["onboardLedState"] = my_robot_state.onboardLedState;
+}
+
+void toggleOnboardLED(int freq)
+{
+  byte onboard_led_state = digitalRead(LED_ONBOARD_PIN);
+  
+  // change LED state every "freq" iterations
+  if (my_robot_state.interationCounter % freq) {
+    if (onboard_led_state == HIGH) {
+      onboard_led_state = LOW;
+    } else {
+      onboard_led_state = HIGH;
+    }
+
+    my_robot_state.onboardLedState = onboard_led_state;
+
+    digitalWrite(LED_ONBOARD_PIN, onboard_led_state);
+  }
 }
 
 void updateCurrentRPM()

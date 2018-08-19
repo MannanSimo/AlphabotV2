@@ -355,19 +355,33 @@ void updateLedIndication()
   RGB.setPixelColor(2, RGB.Color(0, 0, 0));
   RGB.setPixelColor(3, RGB.Color(0, 0, 0));
 
-  if (10 < my_robot_state.ultraSonicDistance && my_robot_state.ultraSonicDistance <= 20)
+  // block for 2 and 3 LEDs - based on info from ultrasonic sensor
+  if (30 < my_robot_state.ultraSonicDistance && my_robot_state.ultraSonicDistance <= 40)
+  {
+    // Dark Slate Blue
+    RGB.setPixelColor(1, RGB.Color(72, 61, 139));
+    RGB.setPixelColor(2, RGB.Color(72, 67, 139));
+  }
+  else if (20 < my_robot_state.ultraSonicDistance && my_robot_state.ultraSonicDistance <= 30)
+  {
+    // Midnight Blue
+    RGB.setPixelColor(1, RGB.Color(25, 25, 112));
+    RGB.setPixelColor(2, RGB.Color(25, 25, 112));
+  }
+  else if (10 < my_robot_state.ultraSonicDistance && my_robot_state.ultraSonicDistance <= 20)
   {
     // set 2 and 3 LEDs to orange
     RGB.setPixelColor(1, RGB.Color(255, 40, 0));
     RGB.setPixelColor(2, RGB.Color(255, 40, 0));
   }
-  if (my_robot_state.ultraSonicDistance <= 10)
+  else if (my_robot_state.ultraSonicDistance <= 10)
   {
     // set 2 and 3 LEDs to red
     RGB.setPixelColor(1, RGB.Color(255, 0, 0));
     RGB.setPixelColor(2, RGB.Color(255, 0, 0));
   }
 
+  // block for 1 and 4 LEDs - based on obsticles avoiding sensors
   if (my_robot_state.isObstacleFromRightSide == true)
   {
     // set 1 LED to orange
@@ -564,6 +578,8 @@ void loop()
 
   // remember time of an iteration's end
   my_robot_state.endIterationTime = millis();
+
+  toggleOnboardLED(100);
 
   // calculate delta time of last iteration
   updateLastIterationTimeinMs();

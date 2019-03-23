@@ -133,7 +133,8 @@ system_state my_robot_state = {
     .inputJson = inputJsonDoc.to<JsonObject>(),
     .isNewCommand = false,
     .userCommandCode = 0,
-    .onboardLedState = LOW};
+    .onboardLedState = LOW
+};
 
 void updateOutputJson()
 {
